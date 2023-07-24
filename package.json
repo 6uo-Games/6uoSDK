@@ -1,0 +1,19 @@
+{
+    "name": "com.uogames.sdk",
+    "version": "1.0.0",
+    "displayName": "6uo SDK",
+    "description": "6uo SDK is a platform that enables developers and gamers to benefit from advertising. Developers can earn 6uo tokens by integrating ads into their games, and gamers can earn 6uo tokens by watching ads while playing. Gamers can also use 6uo tokens to purchase game assets with the SDK, such as items, skins, or upgrades. 6uo SDK is easy to use and compatible with multiple platforms and genres.",
+    "unity": "2021.3",
+    "dependencies": {
+
+    },
+    "keywords": [
+        "library",
+        "utility",
+        "strings"
+    ],
+    "author": {
+        "name": "6uo Games",
+        "email": "develop@6uogames.com"
+    }
+}
