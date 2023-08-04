@@ -91,4 +91,39 @@ public class IOSPluginInterface : MonoBehaviour
 
         return null;
     }
+
+    #if UNITY_IPHONE
+    [DllImport("__Internal")]
+    #endif
+    private static extern IntPtr Purchase_pending(string product_id, string rsa_public_key);
+
+    public static string PurchasePending(string product_id, string rsa_public_key)
+    {
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            IntPtr ReceivedMessage = Purchase_pending(product_id, rsa_public_key);
+
+            return Marshal.PtrToStringAnsi(ReceivedMessage);
+        }
+
+        return null;
+    }
+
+    #if UNITY_IPHONE
+    [DllImport("__Internal")]
+    #endif
+    private static extern IntPtr Purchase_confirm(string rsa_public_key);
+
+    public static string PurchaseConfirm(string rsa_public_key)
+    {
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            IntPtr ReceivedMessage = Purchase_confirm(rsa_public_key);
+
+            return Marshal.PtrToStringAnsi(ReceivedMessage);
+        }
+
+        return null;
+    }
+
 }

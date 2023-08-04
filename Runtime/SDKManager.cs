@@ -267,5 +267,41 @@ public class SDKManager : MonoBehaviour
         }
 
     }
+
+    public void Purchcase_pending(){
+
+        #if UNITY_EDITOR
+
+        #elif UNITY_ANDROID
+
+        #elif UNITY_IPHONE
+
+        string message = IOSPluginInterface.PurchasePending( "com.david.200g", authoizationKey );
+
+        Debug.Log( message );
+
+        #endif
+
+        return;
+
+    }
+
+    public void Purchcase_confirm(){
+
+        #if UNITY_EDITOR
+
+        #elif UNITY_ANDROID
+
+        #elif UNITY_IPHONE
+
+        string message = IOSPluginInterface.PurchaseConfirm( authoizationKey );
+
+        Debug.Log( message );
+
+        #endif
+
+        return;
+
+    }
     
 }
