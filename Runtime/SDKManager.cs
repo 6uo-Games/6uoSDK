@@ -274,6 +274,16 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_ANDROID
 
+        object[] parameters = new object[2];
+        parameters[0] = "com.david.200g";
+        parameters[1] = authoizationKey;
+        string result = "";
+        object[] unityParameters = new object[1];
+        unityParameters[0] = unityActivity;
+        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+
+        result = mSDKHandler.Call<string>("purchase_pending", parameters);
+
         #elif UNITY_IPHONE
 
         string message = IOSPluginInterface.PurchasePending( "com.david.200g", authoizationKey );
@@ -291,6 +301,15 @@ public class SDKManager : MonoBehaviour
         #if UNITY_EDITOR
 
         #elif UNITY_ANDROID
+
+        object[] parameters = new object[1];
+        parameters[0] = authoizationKey;
+        string result = "";
+        object[] unityParameters = new object[1];
+        unityParameters[0] = unityActivity;
+        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+
+        result = mSDKHandler.Call<string>("purchase_confirm", parameters);
 
         #elif UNITY_IPHONE
 
