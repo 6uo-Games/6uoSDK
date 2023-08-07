@@ -274,8 +274,10 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_ANDROID
 
+        string str = "com.david.200g";
+
         object[] parameters = new object[2];
-        parameters[0] = "com.david.200g";
+        parameters[0] = str;
         parameters[1] = authoizationKey;
         string result = "";
         object[] unityParameters = new object[1];

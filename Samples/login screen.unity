@@ -303,9 +303,8 @@ MonoBehaviour:
   mPassword: {fileID: 1218681599}
   mConfirmPassword: {fileID: 835538792}
   mMessageLog: {fileID: 952861378}
-  advertisingId: 46259fbe-3278-11ee-8bca-0242ac140008
-  authoizationKey: -----BEGIN PUBLIC KEY----- MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw8tMV2oP6r3R/tmrFSpkmy/CW5CVSpUl3EY7AwLXcxiOPZp4mZdUeFadB18odIqQNM/2euDL28cuLjAYEYl2uGYpxLY9xYfd15fjWJ8o29l+I1S6EBPtx/AZHsAi7+/uO3rftKBsXa+tluI+/OiRH829h8aNkAWIQL619P8nXBwWpvUpJ7dB88Khqu6WaPZ8IsmxqkYO4IbhdN0Fsj0iWy5d2BDavQaJbGHaW6/4bcPkejqYlKAy8tAKqmxd2dAl1+hNMePGLJmeznRKC8fCr4NuiIwKT9yNIlqA65nR0CHny21SwB6G5D9bYmaaLQXaaP90Zk+97zTDcCcVRdlx9wIDAQAB
-    -----END PUBLIC KEY-----
+  advertisingId: 
+  authoizationKey: 
 --- !u!4 &30143057
 Transform:
   m_ObjectHideFlags: 0
@@ -361,7 +360,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 190}
+  m_AnchoredPosition: {x: 0, y: -200}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &67425913
