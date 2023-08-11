@@ -95,6 +95,57 @@ public class IOSPluginInterface : MonoBehaviour
     #if UNITY_IPHONE
     [DllImport("__Internal")]
     #endif
+    private static extern IntPtr Get6uoBalance();
+
+    public static string check_balance()
+    {
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            IntPtr ReceivedMessage = Get6uoBalance();
+
+            return Marshal.PtrToStringAnsi(ReceivedMessage);
+        }
+
+        return null;
+    }
+
+    #if UNITY_IPHONE
+    [DllImport("__Internal")]
+    #endif
+    private static extern IntPtr SetProd();
+
+    public static string Set_Prod()
+    {
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            IntPtr ReceivedMessage = SetProd();
+
+            return Marshal.PtrToStringAnsi(ReceivedMessage);
+        }
+
+        return null;
+    }
+
+    #if UNITY_IPHONE
+    [DllImport("__Internal")]
+    #endif
+    private static extern IntPtr SetDemo();
+
+    public static string Set_Demo()
+    {
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            IntPtr ReceivedMessage = SetDemo();
+
+            return Marshal.PtrToStringAnsi(ReceivedMessage);
+        }
+
+        return null;
+    }
+
+    #if UNITY_IPHONE
+    [DllImport("__Internal")]
+    #endif
     private static extern IntPtr Purchase_pending(string product_id, string rsa_public_key);
 
     public static string PurchasePending(string product_id, string rsa_public_key)

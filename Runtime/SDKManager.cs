@@ -20,6 +20,9 @@ public class SDKManager : MonoBehaviour
     GameObject SDKUI;
 
     [SerializeField]
+    GameObject PurchaseUI;
+
+    [SerializeField]
     InputField mEmailAddress;
 
     [SerializeField]
@@ -32,24 +35,49 @@ public class SDKManager : MonoBehaviour
     Text mMessageLog;
 
     [SerializeField]
+    Text mBalance;
+
+    [SerializeField]
     string advertisingId;
 
     [SerializeField]
     string authoizationKey;
+
+    [SerializeField]
+    bool ProdMode;
 
     void Awake(){
         mMessageLog.text = "";
         DontDestroyOnLoad( this.gameObject );
         loginUI.SetActive( true );
         SDKUI.SetActive( false );
+        PurchaseUI.SetActive( false );
     }
 
     void Start() {
+
         #if UNITY_EDITOR
 
         #elif UNITY_ANDROID
+
         AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+
+        if (ProdMode){
+            object[] unityParameters = new object[1];
+            unityParameters[0] = unityActivity;
+            mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+
+            mSDKHandler.Call("SetProd");
+        }
+
+        #elif UNITY_IPHONE
+
+        if (ProdMode)
+            IOSPluginInterface.Set_Prod();
+        else
+            IOSPluginInterface.Set_Demo();
+
         #endif
     }
 
@@ -63,9 +91,9 @@ public class SDKManager : MonoBehaviour
         
         #if UNITY_EDITOR
 
-        Debug.Log( parameters[1] );
         loginUI.SetActive( false );
         SDKUI.SetActive( true );
+        PurchaseUI.SetActive( true );
         SceneManager.LoadScene( 1 );
 
         #elif UNITY_ANDROID
@@ -76,23 +104,19 @@ public class SDKManager : MonoBehaviour
 
         mMessageLog.text = mSDKHandler.Call<string>("login", parameters);
 
+        #elif UNITY_IPHONE
+
+        mMessageLog.text = IOSPluginInterface.LoginAPI( mEmailAddress.text, mPassword.text );
+
+        #endif
+
         if (mMessageLog.text == "Success"){
             loginUI.SetActive( false );
             SDKUI.SetActive( true );
+            PurchaseUI.SetActive( true );
+            InvokeRepeating("check_balance", 0.0f, 5.0f);
             SceneManager.LoadScene( 1 );
         }
-
-        #elif UNITY_IPHONE
-
-        string message = IOSPluginInterface.LoginAPI( mEmailAddress.text, mPassword.text );
-
-        if (message == "Success") {
-            loginUI.SetActive( false );
-            SDKUI.SetActive( true );
-            SceneManager.LoadScene( 1 );
-        }
-
-        #endif
 
     }
 
@@ -117,9 +141,8 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_IPHONE
 
-        string message =IOSPluginInterface.SignupAPI( mEmailAddress.text, mPassword.text, mConfirmPassword.text );
+        mMessageLog.text = IOSPluginInterface.SignupAPI( mEmailAddress.text, mPassword.text, mConfirmPassword.text );
 
-        Debug.Log( message );
 
         #endif
 
@@ -236,9 +259,10 @@ public class SDKManager : MonoBehaviour
             {
                 if (www.isDone)
                 {
+                    PurchaseUI.SetActive( false );
                     var texture = DownloadHandlerTexture.GetContent(www);
                     GameObject panel = new GameObject("Ad Panel");
-                    GameObject temp = GameObject.Find("SDKCanvas");
+                    GameObject temp = GameObject.Find("AdCanvas");
                     panel.transform.SetParent( temp.transform );
                     Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
                     Image i = panel.AddComponent<Image>();
@@ -259,6 +283,7 @@ public class SDKManager : MonoBehaviour
                     btn.onClick.AddListener ( delegate(){
                         Debug.Log("Button is pressed!");
                         finish_ad();
+                        PurchaseUI.SetActive( true );
                         Destroy( panel );
                         Destroy( cross );
                     } );
@@ -268,16 +293,14 @@ public class SDKManager : MonoBehaviour
 
     }
 
-    public void Purchcase_pending(){
+    public void Purchcase_pending(string item){
 
         #if UNITY_EDITOR
 
         #elif UNITY_ANDROID
 
-        string str = "com.david.200g";
-
         object[] parameters = new object[2];
-        parameters[0] = str;
+        parameters[0] = item;
         parameters[1] = authoizationKey;
         string result = "";
         object[] unityParameters = new object[1];
@@ -288,7 +311,7 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_IPHONE
 
-        string message = IOSPluginInterface.PurchasePending( "com.david.200g", authoizationKey );
+        string message = IOSPluginInterface.PurchasePending( item, authoizationKey );
 
         Debug.Log( message );
 
@@ -322,6 +345,36 @@ public class SDKManager : MonoBehaviour
         #endif
 
         return;
+
+    }
+
+    public string check_balance(){
+
+        string balance = "";
+
+        #if UNITY_EDITOR
+
+        #elif UNITY_ANDROID
+
+        object[] unityParameters = new object[1];
+        unityParameters[0] = unityActivity;
+        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+
+        string result = mSDKHandler.Call<string>("updateBalance");
+        balance = mSDKHandler.Call<string>("getBalance");
+
+        #elif UNITY_IPHONE
+
+        balance = IOSPluginInterface.check_balance(  );
+
+        #endif
+
+        if (balance != ""){
+            float balanceFloat = float.Parse( balance ) / 1000000000.0f;
+            mBalance.text = balanceFloat.ToString();
+        }
+
+        return balance;
 
     }
     
