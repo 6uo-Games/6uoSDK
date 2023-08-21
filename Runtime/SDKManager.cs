@@ -20,9 +20,6 @@ public class SDKManager : MonoBehaviour
     GameObject SDKUI;
 
     [SerializeField]
-    GameObject PurchaseUI;
-
-    [SerializeField]
     InputField mEmailAddress;
 
     [SerializeField]
@@ -51,7 +48,6 @@ public class SDKManager : MonoBehaviour
         DontDestroyOnLoad( this.gameObject );
         loginUI.SetActive( true );
         SDKUI.SetActive( false );
-        PurchaseUI.SetActive( false );
     }
 
     void Start() {
@@ -93,7 +89,6 @@ public class SDKManager : MonoBehaviour
 
         loginUI.SetActive( false );
         SDKUI.SetActive( true );
-        PurchaseUI.SetActive( true );
         SceneManager.LoadScene( 1 );
 
         #elif UNITY_ANDROID
@@ -113,7 +108,6 @@ public class SDKManager : MonoBehaviour
         if (mMessageLog.text == "Success"){
             loginUI.SetActive( false );
             SDKUI.SetActive( true );
-            PurchaseUI.SetActive( true );
             InvokeRepeating("check_balance", 0.0f, 5.0f);
             SceneManager.LoadScene( 1 );
         }
@@ -200,15 +194,29 @@ public class SDKManager : MonoBehaviour
 
             ad_session_token = mSDKHandler.Call<string>("getAd_session_token");
 
-            StartCoroutine( setAd("https://api-demo.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
+            if (!ProdMode)
+                StartCoroutine( setAd("https://api-demo.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
+            else
+                StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
 
+        }else if (result == "DEMO OK"){
+            StartCoroutine( setAd("https://cdn-icons-png.flaticon.com/512/9148/9148499.png") );
         }
 
         #elif UNITY_IPHONE
 
         ad_session_token = IOSPluginInterface.PlayCampaignAPI( advertisingId );
 
-        StartCoroutine( setAd("https://api-demo.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
+        if (ad_session_token != null){
+
+            if (!ProdMode)
+                StartCoroutine( setAd("https://api-demo.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
+            else
+                StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
+                
+        }else {
+            StartCoroutine( setDemoAd("https://cdn-icons-png.flaticon.com/512/9148/9148499.png") );
+        }
 
         #endif
 
@@ -245,6 +253,51 @@ public class SDKManager : MonoBehaviour
 
     }
 
+    IEnumerator setDemoAd(string url){
+
+        using(var www = UnityWebRequestTexture.GetTexture(url))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                if (www.isDone)
+                {
+                    var texture = DownloadHandlerTexture.GetContent(www);
+                    GameObject panel = new GameObject("Ad Panel");
+                    GameObject temp = GameObject.Find("SDKCanvas");
+                    panel.transform.SetParent( temp.transform );
+                    Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                    Image i = panel.AddComponent<Image>();
+                    i.sprite = sprite;
+                    RectTransform rt = panel.GetComponent<RectTransform>();
+                    rt.anchoredPosition = new Vector2( 0, 0 );
+                    rt.sizeDelta = new Vector2( Screen.width, Screen.height );
+
+                    yield return new WaitForSeconds(5);
+
+                    GameObject cross = new GameObject("Close Ad");
+                    cross.transform.SetParent( temp.transform );
+                    Image ii = cross.AddComponent<Image>();
+                    Button btn = cross.AddComponent<Button>();
+                    ii.sprite = Resources.Load<Sprite>("cross");
+                    RectTransform crossRt = cross.GetComponent<RectTransform>();
+                    crossRt.anchoredPosition = new Vector2( Screen.width / 2 - 200, Screen.height / 2 - 200 );
+                    btn.onClick.AddListener ( delegate(){
+                        Debug.Log("Button is pressed!");
+                        Destroy( panel );
+                        Destroy( cross );
+                    } );
+                }
+            }
+        }
+
+    }
+
     IEnumerator setAd(string url){
 
         using(var www = UnityWebRequestTexture.GetTexture(url))
@@ -259,10 +312,9 @@ public class SDKManager : MonoBehaviour
             {
                 if (www.isDone)
                 {
-                    PurchaseUI.SetActive( false );
                     var texture = DownloadHandlerTexture.GetContent(www);
                     GameObject panel = new GameObject("Ad Panel");
-                    GameObject temp = GameObject.Find("AdCanvas");
+                    GameObject temp = GameObject.Find("SDKCanvas");
                     panel.transform.SetParent( temp.transform );
                     Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
                     Image i = panel.AddComponent<Image>();
@@ -283,7 +335,6 @@ public class SDKManager : MonoBehaviour
                     btn.onClick.AddListener ( delegate(){
                         Debug.Log("Button is pressed!");
                         finish_ad();
-                        PurchaseUI.SetActive( true );
                         Destroy( panel );
                         Destroy( cross );
                     } );
@@ -295,6 +346,8 @@ public class SDKManager : MonoBehaviour
 
     public void Purchcase_pending(string item){
 
+        string result = "";
+
         #if UNITY_EDITOR
 
         #elif UNITY_ANDROID
@@ -302,7 +355,6 @@ public class SDKManager : MonoBehaviour
         object[] parameters = new object[2];
         parameters[0] = item;
         parameters[1] = authoizationKey;
-        string result = "";
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
         mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
@@ -311,11 +363,17 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_IPHONE
 
-        string message = IOSPluginInterface.PurchasePending( item, authoizationKey );
-
-        Debug.Log( message );
+        result = IOSPluginInterface.PurchasePending( item, authoizationKey );
 
         #endif
+
+        if ( result == "DEMO OK" ){
+            // DEMO
+
+        }else if ( result == "Success" ){
+            // Success
+
+        }
 
         return;
 
@@ -323,13 +381,14 @@ public class SDKManager : MonoBehaviour
 
     public void Purchcase_confirm(){
 
+        string result = "";
+
         #if UNITY_EDITOR
 
         #elif UNITY_ANDROID
 
         object[] parameters = new object[1];
         parameters[0] = authoizationKey;
-        string result = "";
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
         mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
@@ -338,11 +397,11 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_IPHONE
 
-        string message = IOSPluginInterface.PurchaseConfirm( authoizationKey );
-
-        Debug.Log( message );
+        result = IOSPluginInterface.PurchaseConfirm( authoizationKey );
 
         #endif
+
+
 
         return;
 
