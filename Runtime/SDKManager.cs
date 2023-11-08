@@ -20,6 +20,9 @@ public class SDKManager : MonoBehaviour
     GameObject SDKUI;
 
     [SerializeField]
+    InputField mID;
+
+    [SerializeField]
     InputField mEmailAddress;
 
     [SerializeField]
@@ -42,6 +45,11 @@ public class SDKManager : MonoBehaviour
 
     [SerializeField]
     bool ProdMode;
+
+    GameObject canvas;
+    AsyncOperation scene;
+    GameObject startBtn;
+    GameObject shopBtn;
 
     void Awake(){
         mMessageLog.text = "";
@@ -75,6 +83,10 @@ public class SDKManager : MonoBehaviour
             IOSPluginInterface.Set_Demo();
 
         #endif
+
+        scene = SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
+        scene.allowSceneActivation = false;
+
     }
 
     // Authentication
@@ -89,7 +101,7 @@ public class SDKManager : MonoBehaviour
 
         loginUI.SetActive( false );
         SDKUI.SetActive( true );
-        SceneManager.LoadScene( 1 );
+        scene.allowSceneActivation = true;
 
         #elif UNITY_ANDROID
 
@@ -108,7 +120,7 @@ public class SDKManager : MonoBehaviour
         if (mMessageLog.text == "Success"){
             loginUI.SetActive( false );
             SDKUI.SetActive( true );
-            InvokeRepeating("check_balance", 0.0f, 5.0f);
+            check_balance();
             SceneManager.LoadScene( 1 );
         }
 
@@ -116,10 +128,11 @@ public class SDKManager : MonoBehaviour
 
     public void Signup(){
 
-        object[] parameters = new object[3];
+        object[] parameters = new object[4];
         parameters[0] = mEmailAddress.text;
-        parameters[1] = mPassword.text;
-        parameters[2] = mConfirmPassword.text;
+        parameters[1] = mID.text;
+        parameters[2] = mPassword.text;
+        parameters[3] = mConfirmPassword.text;
 
         #if UNITY_EDITOR
 
@@ -135,7 +148,7 @@ public class SDKManager : MonoBehaviour
 
         #elif UNITY_IPHONE
 
-        mMessageLog.text = IOSPluginInterface.SignupAPI( mEmailAddress.text, mPassword.text, mConfirmPassword.text );
+        mMessageLog.text = IOSPluginInterface.SignupAPI( mEmailAddress.text, mID.text, mPassword.text, mConfirmPassword.text );
 
 
         #endif
@@ -220,6 +233,10 @@ public class SDKManager : MonoBehaviour
 
         #endif
 
+        canvas = GameObject.Find("Canvas");
+        canvas.SetActive(false);
+        Time.timeScale = 0.0f;
+
         return;
 
     }
@@ -249,6 +266,9 @@ public class SDKManager : MonoBehaviour
 
         #endif
 
+        canvas.SetActive(true);
+        check_balance();
+
         return;
 
     }
@@ -267,6 +287,7 @@ public class SDKManager : MonoBehaviour
             {
                 if (www.isDone)
                 {
+                    Time.timeScale = 1.0f;
                     var texture = DownloadHandlerTexture.GetContent(www);
                     GameObject panel = new GameObject("Ad Panel");
                     GameObject temp = GameObject.Find("SDKCanvas");
@@ -312,6 +333,7 @@ public class SDKManager : MonoBehaviour
             {
                 if (www.isDone)
                 {
+                    Time.timeScale = 1.0f;
                     var texture = DownloadHandlerTexture.GetContent(www);
                     GameObject panel = new GameObject("Ad Panel");
                     GameObject temp = GameObject.Find("SDKCanvas");
@@ -372,6 +394,11 @@ public class SDKManager : MonoBehaviour
 
         }else if ( result == "Success" ){
             // Success
+
+            if ( item == "com.redcity.attackBoost" ){
+                GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+                playerObj.GetComponent<PlayerPresenter>().UpgradeAttackDamage();
+            }
 
         }
 
@@ -435,6 +462,20 @@ public class SDKManager : MonoBehaviour
 
         return balance;
 
+    }
+
+    public void HideStartBtn(){
+        startBtn = GameObject.Find("StartButton");
+        startBtn.SetActive(false);
+    }
+
+    public void ShowStartBtn(){
+        startBtn.SetActive(true);
+    }
+
+    public void HideShopBtn(){
+        shopBtn = GameObject.Find("Shop");
+        shopBtn.SetActive(false);
     }
     
 }

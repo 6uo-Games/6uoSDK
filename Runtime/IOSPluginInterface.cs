@@ -10,13 +10,13 @@ public class IOSPluginInterface : MonoBehaviour
     #if UNITY_IPHONE
     [DllImport("__Internal")]   
     #endif
-    private static extern IntPtr SignUpWithEmail(string emailAddress, string password, string confirmPassword);
+    private static extern IntPtr SignUpWithEmail(string emailAddress, string id, string password, string confirmPassword);
 
-    public static string SignupAPI(string emailAddress, string password, string confirmPassword)
+    public static string SignupAPI(string emailAddress, string id, string password, string confirmPassword)
     {         
         if (Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            IntPtr ReceivedMessage = SignUpWithEmail(emailAddress, password, confirmPassword);
+            IntPtr ReceivedMessage = SignUpWithEmail(emailAddress, id, password, confirmPassword);
 
             return Marshal.PtrToStringAnsi(ReceivedMessage);
         }

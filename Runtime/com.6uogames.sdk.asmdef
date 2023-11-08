@@ -2,7 +2,8 @@
     "name": "com.6uogames.sdk",
     "rootNamespace": "",
     "references": [
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:20db5310427cec948996474d83265dd8"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
