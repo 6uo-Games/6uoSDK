@@ -395,11 +395,6 @@ public class SDKManager : MonoBehaviour
         }else if ( result == "Success" ){
             // Success
 
-            if ( item == "com.redcity.attackBoost" ){
-                GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-                playerObj.GetComponent<PlayerPresenter>().UpgradeAttackDamage();
-            }
-
         }
 
         return;
