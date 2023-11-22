@@ -71,8 +71,7 @@ public class SDKManager : MonoBehaviour
             object[] unityParameters = new object[1];
             unityParameters[0] = unityActivity;
             mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
-
-            mSDKHandler.Call("SetProd");
+            var result = mSDKHandler.Call<string>("SetProd");
         }
 
         #elif UNITY_IPHONE
@@ -213,7 +212,7 @@ public class SDKManager : MonoBehaviour
                 StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
 
         }else if (result == "DEMO OK"){
-            StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+            StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
         }
 
         #elif UNITY_IPHONE

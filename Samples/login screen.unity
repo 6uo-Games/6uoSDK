@@ -305,9 +305,10 @@ MonoBehaviour:
   mConfirmPassword: {fileID: 835538792}
   mMessageLog: {fileID: 409851268}
   mBalance: {fileID: 1013927796}
-  advertisingId: 
-  authoizationKey: 
-  ProdMode: 0
+  advertisingId: 9e1f551c-8515-11ee-bc1a-0aaefdcace20
+  authoizationKey: -----BEGIN PUBLIC KEY----- MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtI4/bfBxHUCqfck1WLGI7UwxZRMBRhMlXJmEs8MuF6yLl8CgzFYHRItATugLX6rFEaLZWeL0Y7vjKhf1BVJE5rTx0ffv+FAUfpn3fjkIJN2UhJyf9e4/5uuF1EPWfANaqNfd3eyItGSdULpMWWSbezHmHnqbp10E+Zjmi+fD4CiZPSY+afXbxKI2o5MjveX0Hs+Hse9YYBGBNVD/9xqTCebyd9mlDu+5FIbWY9qB1WS6ac2KIKwHs46loDyoAUuNPq4O0qIi13tP/ltt0R+f8BmthyNaaxQRGZR86J8LLtRMwHkWrFyxWyOwChIwMjmm7Ny4aNnHBcyEMIv8o2+ryQIDAQAB
+    -----END PUBLIC KEY-----
+  ProdMode: 1
 --- !u!4 &30143057
 Transform:
   m_ObjectHideFlags: 0
