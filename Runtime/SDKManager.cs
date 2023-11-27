@@ -212,7 +212,10 @@ public class SDKManager : MonoBehaviour
                 StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
 
         }else if (result == "DEMO OK"){
-            StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+            if (ProdMode)
+                StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+            else
+                StartCoroutine( setDemoAd("https://api-demo.6uogames.com:8000/campaign/preview/get_ad_resources") );
         }
 
         #elif UNITY_IPHONE
@@ -227,7 +230,10 @@ public class SDKManager : MonoBehaviour
                 StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/" + ad_session_token + "/get_ad_resources") );
                 
         }else {
-            StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+            if (ProdMode)
+                StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+            else
+                StartCoroutine( setDemoAd("https://api-demo.6uogames.com:8000/campaign/preview/get_ad_resources") );
         }
 
         #endif
