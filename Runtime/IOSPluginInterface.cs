@@ -177,4 +177,21 @@ public class IOSPluginInterface : MonoBehaviour
         return null;
     }
 
+    #if UNITY_IPHONE
+    [DllImport("__Internal")]
+    #endif
+    private static extern IntPtr CheckProtected();
+
+    public static string checkProtected()
+    {
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            IntPtr ReceivedMessage = CheckProtected();
+
+            return Marshal.PtrToStringAnsi(ReceivedMessage);
+        }
+
+        return null;
+    }
+
 }

@@ -54,8 +54,8 @@ public class SDKManager : MonoBehaviour
     void Awake(){
         mMessageLog.text = "";
         DontDestroyOnLoad( this.gameObject );
-        loginUI.SetActive( true );
-        SDKUI.SetActive( false );
+        loginUI.SetActive( false );
+        SDKUI.SetActive( true );
     }
 
     void Start() {
@@ -70,7 +70,7 @@ public class SDKManager : MonoBehaviour
         if (ProdMode){
             object[] unityParameters = new object[1];
             unityParameters[0] = unityActivity;
-            mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+            mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
             var result = mSDKHandler.Call<string>("SetProd");
         }
 
@@ -83,8 +83,7 @@ public class SDKManager : MonoBehaviour
 
         #endif
 
-        scene = SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
-        scene.allowSceneActivation = false;
+        check_balance();
 
     }
 
@@ -100,13 +99,15 @@ public class SDKManager : MonoBehaviour
 
         loginUI.SetActive( false );
         SDKUI.SetActive( true );
-        scene.allowSceneActivation = true;
 
         #elif UNITY_ANDROID
 
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+        
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         mMessageLog.text = mSDKHandler.Call<string>("login", parameters);
 
@@ -120,7 +121,6 @@ public class SDKManager : MonoBehaviour
             loginUI.SetActive( false );
             SDKUI.SetActive( true );
             check_balance();
-            SceneManager.LoadScene( 1 );
         }
 
     }
@@ -141,7 +141,10 @@ public class SDKManager : MonoBehaviour
 
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         mMessageLog.text = mSDKHandler.Call<string>("signup", parameters);
 
@@ -168,7 +171,10 @@ public class SDKManager : MonoBehaviour
 
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         result = mSDKHandler.Call<string>("campaign_initialize", parameters);
 
@@ -198,7 +204,10 @@ public class SDKManager : MonoBehaviour
 
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         result = mSDKHandler.Call<string>("campaign_play_ad", parameters);
 
@@ -213,9 +222,9 @@ public class SDKManager : MonoBehaviour
 
         }else if (result == "DEMO OK"){
             if (ProdMode)
-                StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+                StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
             else
-                StartCoroutine( setDemoAd("https://api-demo.6uogames.com:8000/campaign/preview/get_ad_resources") );
+                StartCoroutine( setAd("https://api-demo.6uogames.com:8000/campaign/preview/get_ad_resources") );
         }
 
         #elif UNITY_IPHONE
@@ -231,16 +240,15 @@ public class SDKManager : MonoBehaviour
                 
         }else {
             if (ProdMode)
-                StartCoroutine( setDemoAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
+                StartCoroutine( setAd("https://api.6uogames.com:8000/campaign/preview/get_ad_resources") );
             else
-                StartCoroutine( setDemoAd("https://api-demo.6uogames.com:8000/campaign/preview/get_ad_resources") );
+                StartCoroutine( setAd("https://api-demo.6uogames.com:8000/campaign/preview/get_ad_resources") );
         }
 
         #endif
 
         canvas = GameObject.Find("Canvas");
         canvas.SetActive(false);
-        Time.timeScale = 0.0f;
 
         return;
 
@@ -259,15 +267,16 @@ public class SDKManager : MonoBehaviour
 
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         result = mSDKHandler.Call<string>("campaign_finish_ad", parameters);
 
         #elif UNITY_IPHONE
 
-        string message = IOSPluginInterface.FinishCampaignAPI( advertisingId, ad_session_token );
-
-        Debug.Log( message );
+        result = IOSPluginInterface.FinishCampaignAPI( advertisingId, ad_session_token );
 
         #endif
 
@@ -275,52 +284,6 @@ public class SDKManager : MonoBehaviour
         check_balance();
 
         return;
-
-    }
-
-    IEnumerator setDemoAd(string url){
-
-        using(var www = UnityWebRequestTexture.GetTexture(url))
-        {
-            yield return www.SendWebRequest();
-
-            if (www.isNetworkError || www.isHttpError)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                if (www.isDone)
-                {
-                    Time.timeScale = 1.0f;
-                    var texture = DownloadHandlerTexture.GetContent(www);
-                    GameObject panel = new GameObject("Ad Panel");
-                    GameObject temp = GameObject.Find("SDKCanvas");
-                    panel.transform.SetParent( temp.transform );
-                    Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
-                    Image i = panel.AddComponent<Image>();
-                    i.sprite = sprite;
-                    RectTransform rt = panel.GetComponent<RectTransform>();
-                    rt.anchoredPosition = new Vector2( 0, 0 );
-                    rt.sizeDelta = new Vector2( Screen.width, Screen.height );
-
-                    yield return new WaitForSeconds(5);
-
-                    GameObject cross = new GameObject("Close Ad");
-                    cross.transform.SetParent( temp.transform );
-                    Image ii = cross.AddComponent<Image>();
-                    Button btn = cross.AddComponent<Button>();
-                    ii.sprite = Resources.Load<Sprite>("cross");
-                    RectTransform crossRt = cross.GetComponent<RectTransform>();
-                    crossRt.anchoredPosition = new Vector2( Screen.width / 2 - 200, Screen.height / 2 - 200 );
-                    btn.onClick.AddListener ( delegate(){
-                        Debug.Log("Button is pressed!");
-                        Destroy( panel );
-                        Destroy( cross );
-                    } );
-                }
-            }
-        }
 
     }
 
@@ -338,7 +301,6 @@ public class SDKManager : MonoBehaviour
             {
                 if (www.isDone)
                 {
-                    Time.timeScale = 1.0f;
                     var texture = DownloadHandlerTexture.GetContent(www);
                     GameObject panel = new GameObject("Ad Panel");
                     GameObject temp = GameObject.Find("SDKCanvas");
@@ -361,7 +323,7 @@ public class SDKManager : MonoBehaviour
                     crossRt.anchoredPosition = new Vector2( Screen.width / 2 - 200, Screen.height / 2 - 200 );
                     btn.onClick.AddListener ( delegate(){
                         Debug.Log("Button is pressed!");
-                        finish_ad();
+                        Invoke("finish_ad", 0.0f);
                         Destroy( panel );
                         Destroy( cross );
                     } );
@@ -384,7 +346,10 @@ public class SDKManager : MonoBehaviour
         parameters[1] = authoizationKey;
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         result = mSDKHandler.Call<string>("purchase_pending", parameters);
 
@@ -418,7 +383,10 @@ public class SDKManager : MonoBehaviour
         parameters[0] = authoizationKey;
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         result = mSDKHandler.Call<string>("purchase_confirm", parameters);
 
@@ -427,8 +395,6 @@ public class SDKManager : MonoBehaviour
         result = IOSPluginInterface.PurchaseConfirm( authoizationKey );
 
         #endif
-
-
 
         return;
 
@@ -444,7 +410,10 @@ public class SDKManager : MonoBehaviour
 
         object[] unityParameters = new object[1];
         unityParameters[0] = unityActivity;
-        mSDKHandler = new AndroidJavaObject( "com.erwin.mylibrary.SDKManager", unityParameters );
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
 
         string result = mSDKHandler.Call<string>("updateBalance");
         balance = mSDKHandler.Call<string>("getBalance");
@@ -476,6 +445,34 @@ public class SDKManager : MonoBehaviour
     public void HideShopBtn(){
         shopBtn = GameObject.Find("Shop");
         shopBtn.SetActive(false);
+    }
+
+    public void Protected(){
+
+        string result = "";
+
+        #if UNITY_EDITOR
+
+        #elif UNITY_ANDROID
+
+        object[] unityParameters = new object[1];
+        unityParameters[0] = unityActivity;
+        mSDKHandler = new AndroidJavaObject( "com.sixuogames.mylibrary.SDKManager", unityParameters );
+
+        if (ProdMode)
+            mSDKHandler.Call<string>("SetProd");
+
+        result = mSDKHandler.Call<string>("protect");
+
+        #elif UNITY_IPHONE
+
+        result = IOSPluginInterface.checkProtected(  );
+
+        #endif
+
+        if (result != "Success"){
+            loginUI.SetActive( true );
+        }
     }
     
 }
