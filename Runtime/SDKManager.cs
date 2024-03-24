@@ -17,7 +17,19 @@ public class SDKManager : MonoBehaviour
     GameObject loginUI;
 
     [SerializeField]
+    GameObject AccountUI;
+
+    [SerializeField]
     GameObject SDKUI;
+
+    [SerializeField]
+    GameObject PanelUI;
+
+    [SerializeField]
+    GameObject ConfirmUI;
+
+    [SerializeField]
+    GameObject PurchaseUI;
 
     [SerializeField]
     InputField mID;
@@ -50,15 +62,73 @@ public class SDKManager : MonoBehaviour
     AsyncOperation scene;
     GameObject startBtn;
     GameObject shopBtn;
+    bool openLogin;
+    bool openAccount;
+    float height;
+
+    string purchase_item;
+
+    private Vector2 startTouchPosition;
+    private Vector2 endTouchPosition;
 
     void Awake(){
         mMessageLog.text = "";
         DontDestroyOnLoad( this.gameObject );
         loginUI.SetActive( false );
+        AccountUI.SetActive( false );
         SDKUI.SetActive( true );
+        openLogin = false;
+        openAccount = false;
+        height = Screen.height;
     }
 
     void Start() {
+
+        loginUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
+        loginUI.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height );
+        AccountUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
+        AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -Screen.height);
+        SDKUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
+
+        GameObject logo, EmailField, IDField, PasswordField, ConfirmPasswordField, SignupButton, LoginButton, SwitchToSignUpButton, SwitchToLoginButton, MessageField;
+
+        logo = loginUI.transform.Find("logo").gameObject;
+        logo.GetComponent<RectTransform>().sizeDelta = new Vector2( 200.0f, 200.0f );
+        logo.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.1f );
+
+        IDField = loginUI.transform.Find("IDField").gameObject;
+        IDField.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        IDField.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.2f );
+        
+        EmailField = loginUI.transform.Find("EmailField").gameObject;
+        EmailField.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        EmailField.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.3f );
+        
+        PasswordField = loginUI.transform.Find("PasswordField").gameObject;
+        PasswordField.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        PasswordField.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.4f );
+        
+        ConfirmPasswordField = loginUI.transform.Find("ConfirmPasswordField").gameObject;
+        ConfirmPasswordField.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        ConfirmPasswordField.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.5f );
+
+        MessageField = loginUI.transform.Find("MessageLog").gameObject;
+        MessageField.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        MessageField.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.6f );
+        
+        SignupButton = loginUI.transform.Find("SignupButton").gameObject;
+        SignupButton.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        SignupButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.7f );
+        
+        LoginButton = loginUI.transform.Find("LoginButton").gameObject;
+        LoginButton.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
+        LoginButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.7f );
+        
+        SwitchToSignUpButton = loginUI.transform.Find("SwitchToSignUpButton").gameObject;
+        SwitchToSignUpButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f - 80.0f, -Screen.height * 0.8f );
+
+        SwitchToLoginButton = loginUI.transform.Find("SwitchToLoginButton").gameObject;
+        SwitchToLoginButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f - 80.0f, -Screen.height * 0.8f );
 
         #if UNITY_EDITOR
 
@@ -83,12 +153,60 @@ public class SDKManager : MonoBehaviour
 
         #endif
 
-        check_balance();
+    }
+
+    void Update(){
+        if (openLogin){
+            height -= Screen.height * 0.08f;
+            Debug.Log( height );
+            if ( height <= Screen.height * 0.05f){
+                height = 200.0f;
+                openLogin = false;
+            }
+            loginUI.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -height ); 
+            if (!openLogin){
+                height = Screen.height;
+            }
+        }
+
+        if (openAccount){
+            height -= Screen.height * 0.08f;
+            if ( height <= Screen.height * 0.05f){
+                height = 200.0f;
+                openAccount = false;
+            }
+            AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -height);
+            if (!openAccount){
+                height = Screen.height;
+            }
+        }
+
+        if (Input.GetMouseButtonDown(0)){
+            startTouchPosition = Input.mousePosition;
+        }
+        if (Input.GetMouseButtonUp(0)){
+            endTouchPosition = Input.mousePosition;
+            if (SwipeDistance() > 100.0f){
+                if (IsSwipeDown()){
+                    loginUI.SetActive(false);
+                    AccountUI.SetActive(false);
+                }
+            }
+        }
 
     }
 
-    // Authentication
+    float SwipeDistance()
+    {
+        return Vector2.Distance(startTouchPosition, endTouchPosition);
+    }
 
+    bool IsSwipeDown()
+    {
+        return endTouchPosition.y < startTouchPosition.y;
+    }
+
+    // Authentication
     public void Login(){
 
         object[] parameters = new object[2];
@@ -472,7 +590,30 @@ public class SDKManager : MonoBehaviour
 
         if (result != "Success"){
             loginUI.SetActive( true );
+            openLogin = true;
         }
+    }
+
+    public void Account(){
+        Debug.Log(openAccount);
+        openAccount = !openAccount;
+        Debug.Log(openAccount);
+    }
+
+    public void LinktoDeletion(){
+        Application.OpenURL("https://6uogames.com/account-removal");
+    }
+
+    public void LinktoProfile(){
+        Application.OpenURL("https://6uogames.com/profile");
+    }
+
+    public void HideLogin(){
+        loginUI.SetActive(false);
+        AccountUI.SetActive(false);
+        PanelUI.SetActive(false);
+        ConfirmUI.SetActive(false);
+        PurchaseUI.SetActive(false);
     }
     
 }
