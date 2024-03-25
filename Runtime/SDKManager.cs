@@ -64,6 +64,7 @@ public class SDKManager : MonoBehaviour
     GameObject shopBtn;
     bool openLogin;
     bool openAccount;
+    bool closeUI;
     float height;
 
     string purchase_item;
@@ -79,6 +80,7 @@ public class SDKManager : MonoBehaviour
         SDKUI.SetActive( true );
         openLogin = false;
         openAccount = false;
+        closeUI = false;
         height = Screen.height;
     }
 
@@ -158,7 +160,6 @@ public class SDKManager : MonoBehaviour
     void Update(){
         if (openLogin){
             height -= Screen.height * 0.08f;
-            Debug.Log( height );
             if ( height <= Screen.height * 0.05f){
                 height = 200.0f;
                 openLogin = false;
@@ -181,6 +182,22 @@ public class SDKManager : MonoBehaviour
             }
         }
 
+        if (closeUI){
+            height += Screen.height * 0.08f;
+            if ( height >= Screen.height){
+                height = Screen.height;
+                closeUI = false;
+            }
+            if (AccountUI.activeSelf)
+                AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -height);
+            if (loginUI.activeSelf)
+                loginUI.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -height ); 
+            if (!closeUI){
+                loginUI.SetActive(false);
+                AccountUI.SetActive(false);
+            }
+        }
+
         if (Input.GetMouseButtonDown(0)){
             startTouchPosition = Input.mousePosition;
         }
@@ -188,8 +205,8 @@ public class SDKManager : MonoBehaviour
             endTouchPosition = Input.mousePosition;
             if (SwipeDistance() > 100.0f){
                 if (IsSwipeDown()){
-                    loginUI.SetActive(false);
-                    AccountUI.SetActive(false);
+                    height = 200f;
+                    closeUI = true;
                 }
             }
         }
@@ -300,7 +317,6 @@ public class SDKManager : MonoBehaviour
 
         string message = IOSPluginInterface.InitializeCampaignAPI( advertisingId );
 
-        Debug.Log( message );
 
         #endif
 
@@ -440,7 +456,6 @@ public class SDKManager : MonoBehaviour
                     RectTransform crossRt = cross.GetComponent<RectTransform>();
                     crossRt.anchoredPosition = new Vector2( Screen.width / 2 - 200, Screen.height / 2 - 200 );
                     btn.onClick.AddListener ( delegate(){
-                        Debug.Log("Button is pressed!");
                         Invoke("finish_ad", 0.0f);
                         Destroy( panel );
                         Destroy( cross );
@@ -595,9 +610,7 @@ public class SDKManager : MonoBehaviour
     }
 
     public void Account(){
-        Debug.Log(openAccount);
         openAccount = !openAccount;
-        Debug.Log(openAccount);
     }
 
     public void LinktoDeletion(){
