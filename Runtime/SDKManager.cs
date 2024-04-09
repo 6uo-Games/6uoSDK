@@ -86,13 +86,22 @@ public class SDKManager : MonoBehaviour
 
     void Start() {
 
+        if (PlayerPrefs.GetInt("isFirstTimeKey", 1) == 1)
+        {
+            // Set the game object to true (you would replace "YourGameObject" with the name of your game object)
+            SDKUI.transform.Find("instruction").gameObject.SetActive(true);
+
+            // Save that the game has been loaded at least once
+            PlayerPrefs.SetInt("isFirstTimeKey", 0);
+        }
+
         loginUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
         loginUI.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height );
         AccountUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
         AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -Screen.height);
         SDKUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
 
-        GameObject logo, EmailField, IDField, PasswordField, ConfirmPasswordField, SignupButton, LoginButton, SwitchToSignUpButton, SwitchToLoginButton, MessageField;
+        GameObject logo, EmailField, IDField, PasswordField, ConfirmPasswordField, SignupButton, LoginButton, SwitchToSignUpButton, SwitchToLoginButton, MessageField, SignUpDescription;
 
         logo = loginUI.transform.Find("logo").gameObject;
         logo.GetComponent<RectTransform>().sizeDelta = new Vector2( 200.0f, 200.0f );
@@ -125,6 +134,9 @@ public class SDKManager : MonoBehaviour
         LoginButton = loginUI.transform.Find("LoginButton").gameObject;
         LoginButton.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
         LoginButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.7f );
+
+        SignUpDescription = loginUI.transform.Find("SignUpDescription").gameObject;
+        SignUpDescription.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.8f );
         
         SwitchToSignUpButton = loginUI.transform.Find("SwitchToSignUpButton").gameObject;
         SwitchToSignUpButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f - 80.0f, -Screen.height * 0.8f );
@@ -200,6 +212,7 @@ public class SDKManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0)){
             startTouchPosition = Input.mousePosition;
+            SDKUI.transform.Find("instruction").gameObject.SetActive(false);
         }
         if (Input.GetMouseButtonUp(0)){
             endTouchPosition = Input.mousePosition;
