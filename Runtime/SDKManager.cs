@@ -23,9 +23,6 @@ public class SDKManager : MonoBehaviour
     GameObject SDKUI;
 
     [SerializeField]
-    GameObject PanelUI;
-
-    [SerializeField]
     GameObject ConfirmUI;
 
     [SerializeField]
@@ -69,9 +66,6 @@ public class SDKManager : MonoBehaviour
 
     string purchase_item;
 
-    private Vector2 startTouchPosition;
-    private Vector2 endTouchPosition;
-
     void Awake(){
         mMessageLog.text = "";
         DontDestroyOnLoad( this.gameObject );
@@ -97,15 +91,18 @@ public class SDKManager : MonoBehaviour
 
         loginUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
         loginUI.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height );
-        AccountUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
-        AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -Screen.height);
+
         SDKUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
 
-        GameObject logo, EmailField, IDField, PasswordField, ConfirmPasswordField, SignupButton, LoginButton, SwitchToSignUpButton, SwitchToLoginButton, MessageField, SignUpDescription;
+        GameObject sdk_logo, EmailField, IDField, PasswordField, ConfirmPasswordField, SignupButton, LoginButton, SwitchToSignUpButton, SwitchToLoginButton, MessageField, SignUpDescription, sdk_closeBtn, account_logo, account_close, account_profile, account_credit, account_deletion;
 
-        logo = loginUI.transform.Find("logo").gameObject;
-        logo.GetComponent<RectTransform>().sizeDelta = new Vector2( 200.0f, 200.0f );
-        logo.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.1f );
+        sdk_logo = loginUI.transform.Find("sdk_logo").gameObject;
+        sdk_logo.GetComponent<RectTransform>().sizeDelta = new Vector2( 200.0f, 200.0f );
+        sdk_logo.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.1f );
+
+        sdk_closeBtn = loginUI.transform.Find("sdk_close").gameObject;
+        sdk_closeBtn.GetComponent<RectTransform>().sizeDelta = new Vector2( 50.0f, 50.0f );
+        sdk_closeBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f * 0.9f, -Screen.height * 0.1f );
 
         IDField = loginUI.transform.Find("IDField").gameObject;
         IDField.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 80f);
@@ -136,13 +133,39 @@ public class SDKManager : MonoBehaviour
         LoginButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.7f );
 
         SignUpDescription = loginUI.transform.Find("SignUpDescription").gameObject;
-        SignUpDescription.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.8f );
+        SignUpDescription.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f - 80.0f - 300f, -Screen.height * 0.8f );
         
         SwitchToSignUpButton = loginUI.transform.Find("SwitchToSignUpButton").gameObject;
         SwitchToSignUpButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f - 80.0f, -Screen.height * 0.8f );
 
         SwitchToLoginButton = loginUI.transform.Find("SwitchToLoginButton").gameObject;
         SwitchToLoginButton.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f - 80.0f, -Screen.height * 0.8f );
+
+
+        AccountUI.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height * 0.9f);
+        AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -Screen.height);
+
+        account_logo = AccountUI.transform.Find("account_logo").gameObject;
+        account_logo.GetComponent<RectTransform>().sizeDelta = new Vector2( 200.0f, 200.0f );
+        account_logo.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.1f );
+
+        account_close = AccountUI.transform.Find("account_close").gameObject;
+        account_close.GetComponent<RectTransform>().sizeDelta = new Vector2( 50.0f, 50.0f );
+        account_close.GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width * 0.8f / 2f * 0.9f, -Screen.height * 0.1f );
+
+        account_profile = AccountUI.transform.Find("profile").gameObject;
+        account_profile.GetComponent<RectTransform>().sizeDelta = new Vector2( Screen.height * 0.1f, Screen.height * 0.1f );
+        account_profile.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.2f );
+
+        account_credit = AccountUI.transform.Find("credit").gameObject;
+        account_credit.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 300f);
+        account_credit.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.4f );
+        account_credit.transform.Find("separateLine").gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 4f);
+        account_credit.transform.Find("watchAds").gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 100f);
+
+        account_deletion = AccountUI.transform.Find("account_deletion").gameObject;
+        account_deletion.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, 150f);
+        account_deletion.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -Screen.height * 0.7f );
 
         #if UNITY_EDITOR
 
@@ -173,7 +196,7 @@ public class SDKManager : MonoBehaviour
         if (openLogin){
             height -= Screen.height * 0.08f;
             if ( height <= Screen.height * 0.05f){
-                height = 200.0f;
+                height = Screen.height * 0.05f;
                 openLogin = false;
             }
             loginUI.GetComponent<RectTransform>().anchoredPosition = new Vector2( 0f, -height ); 
@@ -185,7 +208,7 @@ public class SDKManager : MonoBehaviour
         if (openAccount){
             height -= Screen.height * 0.08f;
             if ( height <= Screen.height * 0.05f){
-                height = 200.0f;
+                height = Screen.height * 0.05f;
                 openAccount = false;
             }
             AccountUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -height);
@@ -211,29 +234,19 @@ public class SDKManager : MonoBehaviour
         }
 
         if (Input.GetMouseButtonDown(0)){
-            startTouchPosition = Input.mousePosition;
             SDKUI.transform.Find("instruction").gameObject.SetActive(false);
         }
-        if (Input.GetMouseButtonUp(0)){
-            endTouchPosition = Input.mousePosition;
-            if (SwipeDistance() > 100.0f){
-                if (IsSwipeDown()){
-                    height = 200f;
-                    closeUI = true;
-                }
-            }
-        }
 
     }
 
-    float SwipeDistance()
-    {
-        return Vector2.Distance(startTouchPosition, endTouchPosition);
+    public void InitializeAd(){
+        play_ad();
+        Invoke("CloseUI", 0.5f);
     }
 
-    bool IsSwipeDown()
-    {
-        return endTouchPosition.y < startTouchPosition.y;
+    public void CloseUI(){
+        closeUI = true;
+        height = 0f;
     }
 
     // Authentication
@@ -394,9 +407,6 @@ public class SDKManager : MonoBehaviour
 
         #endif
 
-        canvas = GameObject.Find("Canvas");
-        canvas.SetActive(false);
-
         return;
 
     }
@@ -427,7 +437,6 @@ public class SDKManager : MonoBehaviour
 
         #endif
 
-        canvas.SetActive(true);
         check_balance();
 
         return;
@@ -467,7 +476,7 @@ public class SDKManager : MonoBehaviour
                     Button btn = cross.AddComponent<Button>();
                     ii.sprite = Resources.Load<Sprite>("cross");
                     RectTransform crossRt = cross.GetComponent<RectTransform>();
-                    crossRt.anchoredPosition = new Vector2( Screen.width / 2 - 200, Screen.height / 2 - 200 );
+                    crossRt.anchoredPosition = new Vector2( Screen.width * 0.8f / 2f * 0.9f, Screen.height / 2 * 0.9f );
                     btn.onClick.AddListener ( delegate(){
                         Invoke("finish_ad", 0.0f);
                         Destroy( panel );
@@ -619,11 +628,12 @@ public class SDKManager : MonoBehaviour
         if (result != "Success"){
             loginUI.SetActive( true );
             openLogin = true;
+        }else{
+            AccountUI.SetActive( true );
+            openAccount = true;
+            check_balance();
+            initialize_ad();
         }
-    }
-
-    public void Account(){
-        openAccount = !openAccount;
     }
 
     public void LinktoDeletion(){
@@ -634,10 +644,17 @@ public class SDKManager : MonoBehaviour
         Application.OpenURL("https://6uogames.com/profile");
     }
 
+    public void LinkToAppStore(){
+        #if UNITY_ANDROID
+        Application.OpenURL("https://play.google.com/store/apps/details?id=com.uoapp");
+        #elif UNITY_IPHONE
+        Application.OpenURL("");
+        #endif
+    }
+
     public void HideLogin(){
         loginUI.SetActive(false);
         AccountUI.SetActive(false);
-        PanelUI.SetActive(false);
         ConfirmUI.SetActive(false);
         PurchaseUI.SetActive(false);
     }
